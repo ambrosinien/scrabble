@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mon Couteau Suisse des Mots</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 700px; margin: 40px auto; padding: 20px; background: #eceff1; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #2c3e50; margin-top: 0; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 10px; border: none; background: #cfd8dc; cursor: pointer; border-radius: 5px; font-weight: bold; }
+        .tab-btn.active { background: #007bff; color: white; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 6px; font-size: 18px; text-transform: uppercase; letter-spacing: 2px; }
+        #resultats { margin-top: 25px; max-height: 400px; overflow-y: auto; }
+        .groupe-taille { margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-left: 5px solid #007bff; border-radius: 4px; }
+        .label-taille { font-weight: bold; color: #007bff; font-size: 1.1em; display: block; margin-bottom: 8px; }
+        .mots { color: #333; line-height: 1.6; font-family: monospace; font-size: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>🔍 Mon Assistant Mots</h2>
+    
+    <div class="tabs">
+        <button class="tab-btn active" onclick="setMode('anagramme')">Anagrammes</button>
+        <button class="tab-btn" onclick="setMode('motif')">Motif (ex: V.N.NE)</button>
+    </div>
+
+    <input type="text" id="userInput" placeholder="CHARGEMENT..." oninput="chercher()">
+
+    <div id="resultats"></div>
+</div>
+
+<script src="dictionnaire.js"></script>
+
+<script>
+    let modeActuel = 'anagramme';
+
+    // On attend que le script dictionnaire.js soit chargé
+    window.onload = () => {
+        document.getElementById('userInput').placeholder = "Entrez vos lettres ou votre motif...";
+    };
+
+    function setMode(mode) {
+        modeActuel = mode;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        chercher();
+    }
+
+    function compterLettres(str) {
+        const compte = {};
+        for (let lettre of str.toUpperCase()) {
+            compte[lettre] = (compte[lettre] || 0) + 1;
+        }
+        return compte;
+    }
+
+    function chercher() {
+        const input = document.getElementById('userInput').value.trim().toUpperCase();
+        const container = document.getElementById('resultats');
+        if (input.length < 2) { container.innerHTML = ""; return; }
+
+        let resultatsHtml = "";
+        
+        // On récupère les longueurs disponibles dans dictionnaireData (chargé depuis le .js)
+        const longueurs = Object.keys(dictionnaireData).map(Number).sort((a, b) => b - a);
+
+        if (modeActuel === 'anagramme') {
+            const mainCompte = compterLettres(input);
+            longueurs.forEach(L => {
+                if (L <= input.length) {
+                    const trouves = dictionnaireData[L].filter(mot => {
+                        const motC = compterLettres(mot);
+                        for (let lettr in motC) if (!mainCompte[lettr] || mainCompte[lettr] < motC[lettr]) return false;
+                        return true;
+                    });
+                    if (trouves.length > 0) resultatsHtml += genererHtml(L, trouves);
+                }
+            });
+        } else {
+            // Mode Motif (Regex)
+            const regex = new RegExp("^" + input.replace(/\./g, "[A-Z]") + "$");
+            const L = input.length;
+            if (dictionnaireData[L]) {
+                const trouves = dictionnaireData[L].filter(mot => regex.test(mot));
+                if (trouves.length > 0) resultatsHtml += genererHtml(L, trouves);
+            }
+        }
+
+        container.innerHTML = resultatsHtml || "Aucun mot trouvé.";
+    }
+
+    function genererHtml(taille, liste) {
+        return `<div class="groupe-taille">
+                    <span class="label-taille">${taille} lettres :</span>
+                    <div class="mots">${liste.join(', ')}</div>
+                </div>`;
+    }
+</script>
+
+</body>
+</html>
