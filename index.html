@@ -3,48 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solveur Expert v3</title>
+    <title>Solveur Expert</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #2563eb; --excl-bg: #fef2f2; --incl-bg: #f0fdf4; --bg: #f8fafc; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 10px; }
-        .card { max-width: 600px; margin: auto; background: white; padding: 15px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        .tabs { display: flex; gap: 8px; margin-bottom: 15px; background: #f1f5f9; padding: 4px; border-radius: 12px; }
-        .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; cursor: pointer; border-radius: 10px; font-weight: bold; }
-        .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        
-        .field-label { font-size: 0.75rem; font-weight: bold; color: #64748b; margin: 10px 0 4px 5px; text-transform: uppercase; }
-        input { 
-            width: 100%; padding: 14px; border: 2px solid #e2e8f0; border-radius: 12px; 
-            font-size: 1.1rem; text-transform: uppercase; box-sizing: border-box; outline: none;
+        :root {
+            --bg: #0f0f13;
+            --surface: #18181f;
+            --border: #2a2a36;
+            --primary: #7c6af7;
+            --primary-dim: rgba(124,106,247,0.15);
+            --excl: #f97066;
+            --excl-dim: rgba(249,112,102,0.12);
+            --incl: #34d399;
+            --incl-dim: rgba(52,211,153,0.12);
+            --text: #e8e8f0;
+            --muted: #6b6b80;
+            --mono: 'DM Mono', monospace;
+            --display: 'Syne', sans-serif;
         }
-        .input-motif { letter-spacing: 4px; font-weight: bold; border-color: var(--primary); }
-        .input-excl { background: var(--excl-bg); border-color: #fee2e2; }
-        .input-incl { background: var(--incl-bg); border-color: #dcfce7; }
-        
-        #resultats { margin-top: 20px; }
-        .groupe-taille { margin-bottom: 15px; }
-        .label-taille { font-weight: 800; color: var(--primary); display: block; margin-bottom: 5px; font-size: 0.8rem; }
-        .mots { background: #f1f5f9; padding: 12px; border-radius: 10px; line-height: 1.7; font-family: monospace; font-size: 1.1rem; word-break: break-all; }
-        .no-result { text-align: center; color: #94a3b8; padding: 20px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--mono); background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px 16px 60px; }
+        header { max-width: 580px; margin: 0 auto 28px; }
+        .logo { font-family: var(--display); font-size: 1.5rem; font-weight: 800; letter-spacing: -0.03em; color: white; }
+        .logo span { color: var(--primary); }
+        .status-bar { margin-top: 6px; font-size: 0.72rem; color: var(--muted); letter-spacing: 0.05em; }
+        .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--incl); margin-right: 6px; vertical-align: middle; }
+        .card { max-width: 580px; margin: 0 auto; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 20px; }
+        .tabs { display: flex; gap: 4px; background: var(--bg); padding: 4px; border-radius: 12px; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 11px; border: none; background: transparent; cursor: pointer; border-radius: 9px; font-family: var(--display); font-weight: 700; font-size: 0.82rem; letter-spacing: 0.04em; color: var(--muted); transition: all 0.2s; }
+        .tab-btn.active { background: var(--primary); color: white; }
+        .field-label { font-size: 0.65rem; font-weight: 500; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin: 16px 0 6px 2px; }
+        input { width: 100%; padding: 14px 16px; background: var(--bg); border: 1.5px solid var(--border); border-radius: 11px; font-family: var(--mono); font-size: 1.1rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); outline: none; transition: border-color 0.2s, background 0.2s; }
+        input:focus { border-color: var(--primary); background: var(--primary-dim); }
+        input.input-motif:focus { border-color: var(--primary); }
+        input.input-excl { border-color: var(--excl-dim); }
+        input.input-excl:focus { border-color: var(--excl); background: var(--excl-dim); }
+        input.input-incl { border-color: var(--incl-dim); }
+        input.input-incl:focus { border-color: var(--incl); background: var(--incl-dim); }
+        #resultats { margin-top: 24px; }
+        .groupe-taille { margin-bottom: 16px; animation: fadeIn 0.2s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .label-taille { display: inline-block; font-family: var(--display); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; color: var(--primary); background: var(--primary-dim); padding: 3px 10px; border-radius: 20px; margin-bottom: 8px; }
+        .count-badge { float: right; font-size: 0.65rem; color: var(--muted); font-weight: 500; margin-top: 2px; }
+        .mots { background: var(--bg); border: 1px solid var(--border); padding: 14px; border-radius: 11px; line-height: 1.9; font-size: 0.95rem; letter-spacing: 0.05em; word-break: break-all; color: #c8c8dc; }
+        .no-result { text-align: center; color: var(--muted); padding: 40px 20px; font-size: 0.85rem; letter-spacing: 0.05em; }
     </style>
 </head>
 <body>
 
+<header>
+    <div class="logo">Solveur<span>.</span></div>
+    <div class="status-bar">
+        <span class="dot"></span>
+        <span>168 447 mots — prêt</span>
+    </div>
+</header>
+
 <div class="card">
     <div class="tabs">
-        <button class="tab-btn active" onclick="setMode('anagramme')">Anagrammes</button>
-        <button class="tab-btn" onclick="setMode('motif')">Motifs Experts</button>
+        <button class="tab-btn active" onclick="setMode('anagramme', this)">Anagrammes</button>
+        <button class="tab-btn" onclick="setMode('motif', this)">Motifs Experts</button>
     </div>
 
     <div id="mainInputContainer">
-        <div class="field-label" id="mainLabel">Vos Lettres (+ Joker *)</div>
+        <div class="field-label" id="mainLabel">Vos lettres (+ joker *)</div>
         <input type="text" id="userInput" placeholder="Ex: AERTSU*" autocomplete="off" oninput="chercher()">
     </div>
 
     <div id="advancedFilters" style="display:none;">
         <div class="field-label">Lettres à exclure</div>
         <input type="text" id="exclInput" class="input-excl" placeholder="Ex: BENDT" oninput="chercher()">
-        
         <div class="field-label">Lettres en main (pour les trous .)</div>
         <input type="text" id="inclInput" class="input-incl" placeholder="Ex: RRTO*" oninput="chercher()">
     </div>
@@ -53,19 +81,16 @@
 </div>
 
 <script src="dictionnaire.js"></script>
-
 <script>
     let modeActuel = 'anagramme';
 
-    function setMode(mode) {
+    function setMode(mode, btn) {
         modeActuel = mode;
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        event.target.classList.add('active');
-        
+        btn.classList.add('active');
         const advanced = document.getElementById('advancedFilters');
         const mainLabel = document.getElementById('mainLabel');
         const userInput = document.getElementById('userInput');
-
         if (mode === 'motif') {
             advanced.style.display = 'block';
             mainLabel.innerText = "Motif fixe (points pour les trous)";
@@ -73,7 +98,7 @@
             userInput.classList.add('input-motif');
         } else {
             advanced.style.display = 'none';
-            mainLabel.innerText = "Vos Lettres (+ Joker *)";
+            mainLabel.innerText = "Vos lettres (+ joker *)";
             userInput.placeholder = "Ex: AERTSU*";
             userInput.classList.remove('input-motif');
         }
@@ -82,45 +107,9 @@
 
     function compter(str) {
         const c = {};
-        for (let l of str.toUpperCase()) c[l] = (c[l] || 0) + 1;
+        for (let l of str) c[l] = (c[l] || 0) + 1;
         return c;
     }
-
-function verifierMotifExpert(mot, motif, exclusions, main) {
-    // 1. La longueur et la structure sont imposées par le MOTIF uniquement
-    const regex = new RegExp("^" + motif.replace(/\./g, "[A-Z]") + "$");
-    if (!regex.test(mot)) return false;
-
-    // 2. EXCLUSIONS : Le mot ne doit contenir aucune de ces lettres
-    if (exclusions) {
-        for (let l of exclusions.toUpperCase()) {
-            if (mot.includes(l)) return false;
-        }
-    }
-
-    // 3. INCLUSIONS (Lettres en main) : 
-    // On vérifie juste que le mot contient AU MOINS les lettres saisies ici.
-    if (main && main.trim() !== "") {
-        const compteMot = compter(mot);
-        const compteMain = compter(main.replace(/\*/g, ''));
-        let jokers = (main.match(/\*/g) || []).length;
-
-        for (let l in compteMain) {
-            let besoin = compteMain[l];
-            let possede = compteMot[l] || 0;
-            
-            if (possede < besoin) {
-                let manque = besoin - possede;
-                if (jokers >= manque) {
-                    jokers -= manque;
-                } else {
-                    return false; // Le mot ne contient pas assez de fois cette lettre
-                }
-            }
-        }
-    }
-    return true;
-}
 
     function peutFaireAnagramme(mot, mainStr) {
         const motC = compter(mot);
@@ -136,12 +125,43 @@ function verifierMotifExpert(mot, motif, exclusions, main) {
         return true;
     }
 
+    function verifierMotifExpert(mot, motif, exclusions, main) {
+        const regex = new RegExp("^" + motif.replace(/\./g, "[A-Z]") + "$");
+        if (!regex.test(mot)) return false;
+        if (exclusions) {
+            // Lettres fixes déjà posées dans le motif (hors points)
+            const lettresMotif = compter(motif.replace(/\./g, ''));
+            const compteMot = compter(mot);
+            for (let l of exclusions) {
+                if (!mot.includes(l)) continue;
+                // Occurrences dans le mot au-delà de celles déjà fixées par le motif
+                const dansMotif = lettresMotif[l] || 0;
+                const dansMot   = compteMot[l] || 0;
+                if (dansMot > dansMotif) return false;
+            }
+        }
+        if (main && main.trim() !== "") {
+            const compteMot = compter(mot);
+            const compteMain = compter(main.replace(/\*/g, ''));
+            let jokers = (main.match(/\*/g) || []).length;
+            for (let l in compteMain) {
+                let besoin = compteMain[l];
+                let possede = compteMot[l] || 0;
+                if (possede < besoin) {
+                    let manque = besoin - possede;
+                    if (jokers >= manque) jokers -= manque;
+                    else return false;
+                }
+            }
+        }
+        return true;
+    }
+
     function chercher() {
         const input = document.getElementById('userInput').value.trim().toUpperCase();
-        const excl = document.getElementById('exclInput').value.trim().toUpperCase();
-        const main = document.getElementById('inclInput').value.trim().toUpperCase();
+        const excl  = document.getElementById('exclInput').value.trim().toUpperCase();
+        const main  = document.getElementById('inclInput').value.trim().toUpperCase();
         const container = document.getElementById('resultats');
-        
         if (input.length < 2) { container.innerHTML = ""; return; }
 
         let html = "";
@@ -164,9 +184,12 @@ function verifierMotifExpert(mot, motif, exclusions, main) {
     }
 
     function genererHtml(taille, liste) {
-        return `<div class="groupe-taille"><span class="label-taille">${taille} LETTRES</span><div class="mots">${liste.join(', ')}</div></div>`;
+        return `<div class="groupe-taille">
+            <span class="label-taille">${taille} lettres</span>
+            <span class="count-badge">${liste.length} mot${liste.length > 1 ? 's' : ''}</span>
+            <div class="mots">${liste.join(', ')}</div>
+        </div>`;
     }
 </script>
-
 </body>
 </html>
